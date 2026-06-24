@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>cena — your all-in-one dining agent</title>
+<meta name="description" content="Cena is your all-in-one dining agent. It finds the food you're craving, books the table, learns your taste with every meal, and gets you into the places you can't get into yourself." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="wm" data-wordmark="22" aria-label="cena — home"></a>
+    <nav class="nav-links">
+      <a href="#capabilities">Capabilities</a>
+      <a href="#learns">How it learns</a>
+      <a href="#premium">Premium</a>
+      <a href="#waitlist" class="btn btn-primary btn-sm">Join the waitlist</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" aria-label="How Cena works">
+  <div class="hero-pin" id="heroPin">
+
+    <!-- map revealed behind the chat -->
+    <div class="map-layer" id="mapLayer">
+      <img src="images/city-map.jpg" alt="A stylized top-down city map showing dishes available nearby" />
+      <div class="map-vignette"></div>
+      <div class="map-caption" id="mapCaption"><span class="live-dot"></span> Craving spicy &amp; brothy · 6 plates near you</div>
+      <div class="markers" id="markers"></div>
+    </div>
+
+    <!-- iMessage conversation -->
+    <div class="chat" id="chat" aria-hidden="false">
+      <div class="bubble-row left"  data-side="left"  id="b1"><div class="bubble recv"><span class="who">Maya</span>Where should we eat tonight?</div></div>
+      <div class="bubble-row right" data-side="right" id="b2"><div class="bubble sent">idk tbh 🤷</div></div>
+      <div class="bubble-row left"  data-side="left"  id="b3"><div class="bubble recv"><span class="who">Maya</span>Wait, I have an idea</div></div>
+    </div>
+
+    <!-- scroll cue -->
+    <div class="scroll-cue" id="scrollCue">
+      <span class="pill">Scroll · watch the agent work</span>
+      <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- HERO HEADLINE (after the reveal) -->
+<section class="band" id="intro">
+  <div class="wrap" style="text-align:center;max-width:900px">
+    <span class="eyebrow reveal">Meet Cena</span>
+    <h1 class="display reveal" style="margin:16px auto 0">Cena is your all-in-one<br/>dining agent.</h1>
+    <p class="lead reveal" style="margin:22px auto 0;text-align:center">It finds the food you're craving, books the table for you, learns your taste with every meal, and gets you into the places you can't get into yourself.</p>
+    <div class="reveal" style="margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="#waitlist" class="btn btn-primary">Join the waitlist</a>
+      <a href="#capabilities" class="btn btn-secondary">See what it does</a>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES (pillars 01–02) -->
+<section class="band sunken" id="capabilities">
+  <div class="wrap">
+    <div style="max-width:720px">
+      <span class="eyebrow reveal">Capabilities</span>
+      <h2 class="h2 reveal" style="margin:12px 0 16px">One agent. The whole dining loop.</h2>
+      <p class="lead reveal">Most apps hand you a search box and wish you luck. Cena is an agent that does all the work end to end, getting sharper the more you lean on it.</p>
+    </div>
+
+    <!-- 01 · Finds your food  (reuses the AI demo) -->
+    <div class="feature">
+      <div class="reveal">
+        <span class="eyebrow">01 · Finds your food</span>
+        <h3 class="h3" style="margin:12px 0 14px">Describe the craving. It finds the plate.</h3>
+        <p class="body">Tell Cena what you're in the mood for — a flavor, texture, or budget — in plain language. The agent reads the craving and surfaces the specific dishes near you, ranked by how well each plate matches, with the reason it picked them. No more sifting through online menus to find the dishes you want.</p>
+      </div>
+      <div class="feat-visual reveal">
+        <div class="ai-mock" id="aiMock">
+          <div class="ai-prompt">
+            <span class="spark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg></span>
+            <span class="txt" id="aiTxt"></span><span class="cur" id="aiCur"></span>
+          </div>
+          <div class="ai-thinking" id="aiThinking">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.5"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/></path></svg>
+            Cena is reading your craving…
+          </div>
+          <div class="ai-results" id="aiResults"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Books the table -->
+    <div class="feature reverse">
+      <div class="reveal">
+        <span class="eyebrow">02 · Books the table</span>
+        <h3 class="h3" style="margin:12px 0 14px">It books the table for you.</h3>
+        <p class="body">Found the plate? The agent takes it from there. It reserves directly through Cena where we support it, or through the reservation system a restaurant already uses. You just get the table. No hassle on the side.</p>
+        <p class="caption" style="margin-top:14px">Designed to book across the rails restaurants already use.</p>
+      </div>
+      <div class="feat-visual reveal">
+        <div class="book-card">
+          <div class="book-head">
+            <div class="book-check"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div><div class="title" style="font-size:1.05rem">Reservation confirmed</div><div class="caption">Cena booked this for you</div></div>
+          </div>
+          <div class="book-row"><span class="k">Restaurant</span><span class="v">Phở Sài Gòn</span></div>
+          <div class="book-row"><span class="k">Table</span><span class="v">Party of 2</span></div>
+          <div class="book-row"><span class="k">When</span><span class="v">Fri · 7:30 PM</span></div>
+          <div class="book-rail"><span class="rdot"></span>Booked through the restaurant's reservation system</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 · HOW IT LEARNS (the differentiator — most weight) -->
+<section class="band" id="learns">
+  <div class="wrap">
+    <div class="feature" style="margin-top:0">
+      <div class="reveal">
+        <span class="eyebrow">03 · How it learns</span>
+        <h2 class="h2" style="margin:12px 0 16px">The more you eat,<br/>the better it gets.</h2>
+        <p class="lead">This is what makes Cena different. Every dish you rate sharpens your taste profile. So the next recommendation is more <em>you</em> than the last.</p>
+        <div class="point reveal" style="margin-top:26px">
+          <div class="pico green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0-8-8"/><path d="M12 8v4l3 2"/></svg></div>
+          <div><h4>A taste profile that compounds</h4><p>Rate the <em>Pad See Ew</em>, not just the restaurant. Cena learns the flavors, textures and spots you return to, as well as the ones you don't.</p></div>
+        </div>
+        <div class="point reveal">
+          <div class="pico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-active)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5M15 20c0-2 1-3.5 3-3.5"/></svg></div>
+          <div><h4>It reconciles a whole group</h4><p>Eating together? Cena combines everyone's taste profiles and recommends places <em>everyone</em> is actually happy with. No more stalemates in your group chats.</p></div>
+        </div>
+      </div>
+
+      <div class="feat-visual reveal">
+        <div class="taste">
+          <div class="taste-head">
+            <div class="taste-ava">M</div>
+            <div><div class="title" style="font-size:1.05rem">Maya's taste profile</div><div class="caption">Sharpens with every meal rated</div></div>
+          </div>
+          <div class="taste-grp">
+            <div class="lbl">Leans toward</div>
+            <div class="ttag"><span style="width:96px">Chili heat</span><span class="bar"><i style="width:88%"></i></span></div>
+            <div class="ttag"><span style="width:96px">Brothy depth</span><span class="bar"><i style="width:82%"></i></span></div>
+            <div class="ttag"><span style="width:96px">Charred edges</span><span class="bar"><i style="width:71%"></i></span></div>
+          </div>
+          <div class="taste-grp">
+            <div class="lbl">Eases off</div>
+            <div class="ttag avoid"><span style="width:96px">Heavy cream</span><span class="bar"><i style="width:34%"></i></span></div>
+          </div>
+          <div class="taste-foot"><span class="live-dot"></span>Getting sharper, meal by meal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- flywheel -->
+    <div style="text-align:center;max-width:640px;margin:64px auto 0">
+      <span class="eyebrow reveal">The flywheel</span>
+      <h3 class="h3 reveal" style="margin:10px 0 0">Every meal makes Cena better, for you and everyone else.</h3>
+    </div>
+    <div class="loop reveal">
+      <span class="loop-step"><span class="n">1</span>You rate the dish</span>
+      <span class="loop-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="loop-step"><span class="n">2</span>Your taste profile sharpens</span>
+      <span class="loop-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="loop-step"><span class="n">3</span>The dish database gets richer</span>
+      <span class="loop-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="loop-step"><span class="n">4</span>Better recommendations for everyone</span>
+      <span class="loop-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 3v4h4"/></svg>which brings you back, more often</span>
+    </div>
+  </div>
+</section>
+
+<!-- 04 · PREMIUM -->
+<section class="band sunken" id="premium">
+  <div class="wrap">
+    <div class="premium reveal">
+      <div class="premium-grid">
+        <div>
+          <span class="pill-prem">Cena Premium</span>
+          <h2 class="h2" style="margin:16px 0 16px">Get the tables you<br/>can't get yourself.</h2>
+          <p class="body">Cena Premium is a concierge agent for the hardest reservations in the city. It watches for cancellations, jumps the moment a slot opens, and holds it for you. Tables that get booked out weeks in advance can now become yours whenever you want.</p>
+          <p class="caption" style="margin-top:16px;color:color-mix(in srgb,var(--bg) 55%,transparent)">· Premium tier · </p>
+        </div>
+        <div class="concierge">
+          <div class="con-row">
+            <div class="ic"><span class="con-live"><span class="live-dot"></span></span></div>
+            <div><div class="ct">Watching — Saint Wren</div><div class="cs">Booked out 6 weeks · agent on standby</div></div>
+          </div>
+          <div class="con-row">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+            <div><div class="ct">Cancellation found</div><div class="cs">Window opened moments ago</div></div>
+            <div class="when">Sat · 8:15</div>
+          </div>
+          <div class="con-row">
+            <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div><div class="ct">Holding the slot for you</div><div class="cs">Confirm in the app to lock it in</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCURACY (supporting) -->
+<section class="band" id="accuracy">
+  <div class="wrap">
+    <div class="feature" style="margin-top:0">
+      <div class="reveal">
+        <span class="eyebrow">Built to be trusted</span>
+        <h2 class="h2" style="margin:12px 0 16px">More accurate than asking a general AI.</h2>
+        <p class="body">General AI search engines (ahem, G**gle) guesses at a dish from a thin sample of web-scraped reviews. Cena analyzes data about the dishes itself: ingredients, preparation, spice level, and more. When specificity matters — allergies, halal, or kosher — you get an answer you can trust.</p>
+      </div>
+      <div class="feat-visual reveal">
+        <div class="compare">
+          <div class="old">
+            <div class="label">General AI · inferred from scraped reviews</div>
+            <div class="menu-lines">
+              <div class="ln" style="width:88%"></div><div class="ln" style="width:54%"></div>
+              <div class="ln" style="width:73%"></div><div class="ln" style="width:42%"></div>
+              <div class="ln" style="width:66%"></div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Cena · structured, dish-level data</div>
+          <div class="tags">
+            <span class="tag warn">Contains peanut</span>
+            <span class="tag safe">Halal</span>
+            <span class="tag safe">Gluten-free option</span>
+            <span class="tag muted">Broth · pork bone</span>
+            <span class="tag muted">Heat · 3/5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="band sunken" id="waitlist">
+  <div class="wrap">
+    <div class="cta reveal">
+      <span class="eyebrow" style="color:var(--primary)">Be first to the table</span>
+      <h2 class="h2" style="margin:14px 0 0">Get early access to your dining agent.</h2>
+      <p class="lead">Join the waitlist and we'll bring Cena to your neighborhood.</p>
+      <form class="waitlist" id="waitForm" novalidate>
+        <input type="email" id="waitEmail" placeholder="you@email.com" aria-label="Email address" autocomplete="email" inputmode="email" />
+        <button type="submit" class="btn btn-primary" id="waitBtn">Join the waitlist</button>
+      </form>
+      <p class="wait-msg" id="waitMsg" role="status" aria-live="polite"></p>
+      <p class="charlotte">Launching first in <b>Charlotte</b> 🌱 — more cities to follow.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot-inner">
+    <a href="#" class="wm" data-wordmark="24" aria-label="cena — home"></a>
+    <nav class="foot-links">
+      <a href="#capabilities">Capabilities</a><a href="#learns">How it learns</a><a href="#premium">Premium</a><a href="#waitlist">Waitlist</a>
+    </nav>
+    <span class="caption">© 2026 Cena · Charlotte, NC</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

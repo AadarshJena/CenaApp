@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+<style>
+  body { margin:0; background:#F4EEE2; font-family:system-ui,sans-serif; }
+  #stage { display:flex; gap:24px; padding:40px; flex-wrap:wrap; }
+  .tile { border:1px solid #E2D9C8; border-radius:16px; padding:20px; background:#F4EEE2; }
+  .tile img { display:block; height:160px; }
+  #status { font:13px monospace; padding:0 40px 40px; color:#6B6053; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="status">loading…</div>
+<script>
+const ORANGE='#F2641E', GREEN_STALK='#2F7D4F', GREEN_LEAF='#46B36A', INK='#1E1B16';
+const FS=200, TRACK=-0.04, PAD=0.42, SPROUT_RISE=0.62;
+
+function measure(){
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg'); svg.setAttribute('width','1200'); svg.setAttribute('height','400');
+  svg.style.position='absolute'; svg.style.left='-9999px';
+  const t=document.createElementNS(ns,'text');
+  t.setAttribute('x','20'); t.setAttribute('y','300'); t.setAttribute('font-family','Fraunces');
+  t.setAttribute('font-weight','600'); t.setAttribute('font-size',FS); t.setAttribute('letter-spacing',TRACK*FS);
+  t.textContent='cena'; svg.appendChild(t); document.body.appendChild(svg);
+  const b=t.getBBox(), a=t.getExtentOfChar(3);
+  const info={bbox:{x:b.x,y:b.y,w:b.width,h:b.height}, a:{x:a.x,y:a.y,w:a.width,h:a.height}, baseline:300};
+  document.body.removeChild(svg); return info;
+}
+
+// Free-standing seedling above the 'a' — green stalk + green leaf + orange leaf (the original mark).
+function sprout(transform){
+  return `<g transform="${transform}">
+    <path d="M21 50 C21 36 21 28 21 18" fill="none" stroke="${GREEN_STALK}" stroke-width="4.6" stroke-linecap="round"/>
+    <path d="M21 23 C12 23 5 18.5 4 9 C14.5 9 21 14.5 21 23 Z" fill="${GREEN_LEAF}"/>
+    <path d="M21 18.5 C29 17.5 35.5 12 37.5 3 C27.5 2 22 7.5 21 18.5 Z" fill="${ORANGE}"/>
+  </g>`;
+}
+
+function buildSVG(info){
+  const scale = (0.52*FS)/47;
+  const baseX = info.a.x + info.a.w/2;
+  const baseY = info.a.y + 0.10*FS;        // sink base slightly into top of 'a'
+  const tx = baseX - 21*scale, ty = baseY - 50*scale;
+  const transform=`translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${scale.toFixed(4)})`;
+  const pad=PAD*FS;
+  const topMost = baseY - 47*scale;
+  const minX=info.bbox.x-pad, minY=Math.min(info.bbox.y,topMost)-pad;
+  const maxX=info.bbox.x+info.bbox.w+pad, maxY=info.bbox.y+info.bbox.h+pad;
+  const vbW=maxX-minX, vbH=maxY-minY;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX.toFixed(2)} ${minY.toFixed(2)} ${vbW.toFixed(2)} ${vbH.toFixed(2)}">
+  <defs><style>__FACE__ .wm{font-family:'FrauncesEmbed','Fraunces',serif;font-weight:600;}</style></defs>
+  <text class="wm" x="20" y="${info.baseline}" font-size="${FS}" letter-spacing="${TRACK*FS}" fill="${INK}">cena</text>
+  ${sprout(transform)}
+</svg>`;
+}
+
+async function getFace(){
+  const css=await (await fetch('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap')).text();
+  const m=css.match(/url\((https:[^)]+\.woff2)\)/);
+  const buf=await (await fetch(m[1])).arrayBuffer(); const by=new Uint8Array(buf); let s='';
+  for(let i=0;i<by.length;i++) s+=String.fromCharCode(by[i]);
+  return `@font-face{font-family:'FrauncesEmbed';font-weight:600;src:url(data:font/woff2;base64,${btoa(s)}) format('woff2');}`;
+}
+
+function toPng(svg,scale){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const vb=svg.match(/viewBox="([\d.\- ]+)"/)[1].split(' ').map(Number);const cv=document.createElement('canvas');cv.width=Math.round(vb[2]*scale);cv.height=Math.round(vb[3]*scale);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/png'));};img.onerror=rej;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);});}
+async function save(n,d){await fetch('/save?name='+encodeURIComponent(n),{method:'POST',body:d});}
+
+window.__run=async function(){
+  await document.fonts.load(`600 ${FS}px Fraunces`); await document.fonts.ready;
+  const info=measure(); const face=await getFace();
+  const svgT=buildSVG(info).replace('__FACE__',face);            // transparent
+  const png=await toPng(svgT,5);
+  await save('cena-mark-source.png',png);
+  const im=document.createElement('img');im.src=png;const tile=document.createElement('div');tile.className='tile';tile.appendChild(im);document.getElementById('stage').appendChild(tile);
+  document.getElementById('status').textContent='DONE cena-mark-source.png ('+Math.round(png.length/1024)+'KB b64)\n'+JSON.stringify(info);
+  return 'ok';
+};
+</script>
+</body>
+</html>
