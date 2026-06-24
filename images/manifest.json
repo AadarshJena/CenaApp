@@ -1,0 +1,32 @@
+[
+  {
+    "file": "images/food1.jpg",
+    "name": "Ramen Noodles with Boiled Egg",
+    "bytes": 115263
+  },
+  {
+    "file": "images/food2.jpg",
+    "name": "Cajun spiced fish tacos",
+    "bytes": 124554
+  },
+  {
+    "file": "images/food3.jpg",
+    "name": "Cassava pizza",
+    "bytes": 154554
+  },
+  {
+    "file": "images/food4.jpg",
+    "name": "kofta burgers",
+    "bytes": 163536
+  },
+  {
+    "file": "images/food5.jpg",
+    "name": "Pad Thai",
+    "bytes": 95252
+  },
+  {
+    "file": "images/food6.jpg",
+    "name": "Beef pho",
+    "bytes": 214173
+  }
+]
