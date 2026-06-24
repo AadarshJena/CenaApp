@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>cena — logo lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+<style>
+  body { margin:0; background:#F4EEE2; font-family:system-ui,sans-serif; }
+  #stage { display:flex; flex-wrap:wrap; gap:24px; padding:40px; }
+  .tile { border:1px solid #E2D9C8; border-radius:16px; padding:8px; }
+  .tile.light { background:#F4EEE2; }
+  .tile.dark  { background:#1E1B16; }
+  .tile img { display:block; height:120px; }
+  #status { font:13px monospace; padding:0 40px 40px; color:#6B6053; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="status">loading…</div>
+
+<script>
+const ORANGE = '#F2641E';
+const GREEN_LIGHT = '#46B36A';
+const GREEN_DARK  = '#5BC47E';
+const INK  = '#1E1B16';
+const CREAM= '#F4EEE2';
+
+// Geometry knobs (tuned visually).
+const FS = 200;            // master font-size in SVG user units
+const TRACK = -0.04;       // letter-spacing (em)
+const PAD = 0.34;          // padding around wordmark as fraction of FS
+const SPROUT_RISE = 0.46;  // how far leaves rise above the x-height top (fraction of FS)
+const STEM_INSET = 0.045;  // pull sprout center inward from n's right edge (fraction of FS)
+
+// Measure glyph positions using a live SVG <text>.
+function measure() {
+  const svgns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgns,'svg');
+  svg.setAttribute('width','1000'); svg.setAttribute('height','400');
+  svg.style.position='absolute'; svg.style.left='-9999px';
+  const t = document.createElementNS(svgns,'text');
+  t.setAttribute('x','20'); t.setAttribute('y','300');
+  t.setAttribute('font-family','Fraunces');
+  t.setAttribute('font-weight','600');
+  t.setAttribute('font-size', FS);
+  t.setAttribute('letter-spacing', (TRACK*FS));
+  t.textContent = 'cena';
+  svg.appendChild(t); document.body.appendChild(svg);
+  const bbox = t.getBBox();
+  const nExt = t.getExtentOfChar(2);   // the 'n'
+  const baseline = 300;
+  const info = {
+    bbox: {x:bbox.x, y:bbox.y, w:bbox.width, h:bbox.height},
+    n: {x:nExt.x, y:nExt.y, w:nExt.width, h:nExt.height},
+    baseline
+  };
+  document.body.removeChild(svg);
+  return info;
+}
+
+// Sprout, authored in a local 42x50 box: stalk base at (21,50), leaves crown near top.
+// stalkColor is set to the letter color so the stalk merges with the n's vertical stem.
+function sproutGroup(transform, stalkColor, green) {
+  return `<g transform="${transform}">
+    <path d="M21 50 C21 36 21 28 21 18" fill="none" stroke="${stalkColor}" stroke-width="4.6" stroke-linecap="round"/>
+    <path d="M21 23 C12 23 5 18.5 4 9 C14.5 9 21 14.5 21 23 Z" fill="${green}"/>
+    <path d="M21 18.5 C29 17.5 35.5 12 37.5 3 C27.5 2 22 7.5 21 18.5 Z" fill="${ORANGE}"/>
+  </g>`;
+}
+
+function buildSVG(info, opts) {
+  const {textColor, green, bg, fontFace, padScale=1} = opts;
+  // sprout placement
+  const scale = (info.baseline - info.n.y + SPROUT_RISE*FS) / 47; // local 50->3 == 47 units
+  const stalkW = 4.6 * scale;
+  const stemCenterX = info.n.x + info.n.w - STEM_INSET*FS - stalkW/2;
+  const tx = stemCenterX - 21*scale;
+  const ty = info.baseline - 50*scale;
+  const transform = `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${scale.toFixed(4)})`;
+  const sprout = sproutGroup(transform, textColor, green);
+
+  // viewBox: include wordmark bbox + sprout rising above + padding
+  const pad = PAD*FS*padScale;
+  const topMost = info.n.y - SPROUT_RISE*FS;            // sprout leaf tips
+  const minX = info.bbox.x - pad;
+  const minY = Math.min(info.bbox.y, topMost) - pad;
+  const maxX = info.bbox.x + info.bbox.w + pad;
+  const maxY = info.bbox.y + info.bbox.h + pad;
+  const vbW = maxX - minX, vbH = maxY - minY;
+
+  const bgRect = bg ? `<rect x="${minX}" y="${minY}" width="${vbW}" height="${vbH}" rx="${0.16*vbH}" fill="${bg}"/>` : '';
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX.toFixed(2)} ${minY.toFixed(2)} ${vbW.toFixed(2)} ${vbH.toFixed(2)}">
+  <defs><style>${fontFace}
+    .wm{font-family:'FrauncesEmbed','Fraunces',serif;font-weight:600;}
+  </style></defs>
+  ${bgRect}
+  <text class="wm" x="20" y="${info.baseline}" font-size="${FS}" letter-spacing="${TRACK*FS}" fill="${textColor}">cena</text>
+  ${sprout}
+</svg>`;
+}
+
+async function getFontFace() {
+  // Fetch the Fraunces 600 woff2 Google serves and embed it so canvas rasterization has the glyphs.
+  const cssUrl = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap';
+  const css = await (await fetch(cssUrl)).text();
+  const m = css.match(/url\((https:[^)]+\.woff2)\)/);
+  if (!m) throw new Error('no woff2 url in CSS');
+  const buf = await (await fetch(m[1])).arrayBuffer();
+  let bin=''; const bytes=new Uint8Array(buf);
+  for (let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+  const b64 = btoa(bin);
+  return `@font-face{font-family:'FrauncesEmbed';font-weight:600;src:url(data:font/woff2;base64,${b64}) format('woff2');}`;
+}
+
+function svgToPng(svg, scale) {
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    img.onload = () => {
+      // derive intrinsic size from viewBox
+      const vb = svg.match(/viewBox="([\d.\- ]+)"/)[1].split(' ').map(Number);
+      const w = vb[2], h = vb[3];
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(w*scale); cv.height = Math.round(h*scale);
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(img, 0,0, cv.width, cv.height);
+      resolve(cv.toDataURL('image/png'));
+    };
+    img.onerror = reject;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+
+async function save(name, dataUrl) {
+  await fetch('/save?name='+encodeURIComponent(name), {method:'POST', body:dataUrl});
+}
+
+window.__buildAll = async function() {
+  const status = document.getElementById('status');
+  const stage = document.getElementById('stage');
+  await document.fonts.load(`600 ${FS}px Fraunces`);
+  await document.fonts.ready;
+  const info = measure();
+  const fontFace = await getFontFace();
+
+  const variants = [
+    {name:'cena-logo-light',        textColor:INK,   green:GREEN_LIGHT, bg:null,  tile:'light'},
+    {name:'cena-logo-dark',         textColor:CREAM, green:GREEN_DARK,  bg:null,  tile:'dark'},
+    {name:'cena-logo-on-cream',     textColor:INK,   green:GREEN_LIGHT, bg:CREAM, tile:'light'},
+    {name:'cena-logo-on-ink',       textColor:CREAM, green:GREEN_DARK,  bg:INK,   tile:'dark'},
+    {name:'cena-logo-mono-ink',     textColor:INK,   green:INK,         bg:null,  tile:'light', mono:true},
+    {name:'cena-logo-mono-cream',   textColor:CREAM, green:CREAM,       bg:null,  tile:'dark',  mono:true},
+  ];
+
+  const EXPORT_SCALE = 4; // ~4x the FS=200 master -> crisp, large
+  const log = [];
+  for (const v of variants) {
+    const svg = buildSVG(info, {textColor:v.textColor, green:v.green, bg:v.bg, fontFace,
+      // mono variants recolor the orange leaf too:
+      ...(v.mono ? {} : {})});
+    let finalSvg = svg;
+    if (v.mono) finalSvg = svg.replace(new RegExp(ORANGE,'g'), v.textColor);
+    const png = await svgToPng(finalSvg, EXPORT_SCALE);
+    await save(v.name + '.png', png);
+    // also save the light master as svg for reuse
+    if (v.name === 'cena-logo-light') await save('cena-logo.svg', 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(finalSvg))));
+    // show on stage
+    const tile = document.createElement('div');
+    tile.className = 'tile ' + v.tile;
+    const im = document.createElement('img'); im.src = png; tile.appendChild(im);
+    stage.appendChild(tile);
+    log.push(v.name + '.png  ('+ Math.round(png.length/1024) +' KB b64)');
+  }
+  status.textContent = 'DONE\n' + log.join('\n') + '\n\nmeasure: ' + JSON.stringify(info);
+  return log;
+};
+</script>
+</body>
+</html>
