@@ -4,6 +4,7 @@ from app.database import Base
 from datetime import datetime, timezone
 import uuid
 
+#specifies all the columns in the MenuItem table of the database
 
 class MenuItem(Base):
     __tablename__ = "menu_items"
