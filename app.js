@@ -192,12 +192,9 @@ const aiObserver = new IntersectionObserver((entries)=>{
 aiObserver.observe(document.getElementById('aiMock'));
 
 /* ============================================================
-   Waitlist — validate, store in Google Sheet + send confirmation email
-   (backend is a Google Apps Script web app; see WAITLIST_SETUP.md)
+   Waitlist — send signup to the FastAPI backend
    ============================================================ */
-// 1. Deploy the script in google-apps-script.gs as a Web App.
-// 2. Paste its /exec URL between the quotes below.
-const WAITLIST_ENDPOINT = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+const WAITLIST_ENDPOINT = 'https://cenaappbackend.onrender.com/waitlist/addwaitlist';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const form = document.getElementById('waitForm');
@@ -225,18 +222,21 @@ form.addEventListener('submit', async (e)=>{
   clearMsg();
 
   try {
-    const configured = WAITLIST_ENDPOINT && !WAITLIST_ENDPOINT.startsWith('PASTE');
-    if (configured) {
-      // no-cors form post: Apps Script records the row + sends the confirmation email.
-      // (Response is opaque by design; the request still reaches the script.)
-      await fetch(WAITLIST_ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: new URLSearchParams({ email, source: 'landing' })
-      });
+    const res = await fetch(WAITLIST_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      emailInput.value = '';
+      setMsg(data.message, 'ok');
+    } else if (res.status === 400) {
+      setMsg("You're already on the waitlist!", 'err');
+    } else {
+      setMsg('Something went wrong. Please try again.', 'err');
     }
-    emailInput.value = '';                 // erase the box
-    setMsg('Thanks for signing up!', 'ok'); // green confirmation
   } catch (err) {
     setMsg('Something went wrong. Please try again.', 'err');
   } finally {
